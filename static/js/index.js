@@ -1,5 +1,5 @@
 const app = () => {
-  const socket = io('http://localhost:3000');
+  const socket = io('https://chat-lr5h.onrender.com');
   const msgInput = document.querySelector('.message-input');
   const msgList = document.querySelector('.messages-list');
   const sendBtn = document.querySelector('.send-btn');
@@ -8,7 +8,7 @@ const app = () => {
 
   const getMessages = async () => {
     try {
-      const { data } = await axios.get('http://localhost:3000/api/chat');
+      const { data } = await axios.get('https://chat-lr5h.onrender.com/api/chat');
 
       renderMessages(data);
       
