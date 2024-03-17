@@ -1,5 +1,5 @@
 const app = () => {
-  const socket = io('https://chat-lr5h.onrender.com');
+  const socket = io('http://localhost:3000');
   const msgInput = document.querySelector('.message-input');
   const msgList = document.querySelector('.messages-list');
   const sendBtn = document.querySelector('.send-btn');
@@ -8,7 +8,7 @@ const app = () => {
 
   const getMessages = async () => {
     try {
-      const { data } = await axios.get('https://chat-lr5h.onrender.com/api/chat');
+      const { data } = await axios.get('http://localhost:3000/api/chat');
 
       renderMessages(data);
       
@@ -40,10 +40,11 @@ const app = () => {
   );
 
   sendBtn.addEventListener('click', () => handleSendMessage(msgInput.value));
+  
 
-  const renderMessages = (data) => {
+    const renderMessages = (data) => {
     let messages = '';
-
+    
     data.forEach(
       (message) =>
         (messages += `
@@ -51,6 +52,7 @@ const app = () => {
             <div class="mr-2">
                 <span class="text-info">${message.username}</span>
                 <p class="text-light">${message.text}</p>
+                <a class="delete-btn" block_num=${message.id}>Удалить</a>
             </div>
             <span class="text-muted text-right date">
                 ${new Date(message.createdAt).toLocaleString('ru', {
@@ -63,16 +65,51 @@ const app = () => {
             </span>
         </li>`),
     );
-    console.log(messages);
-    msgList.innerHTML = messages;
-  };
+        //console.log(messages);
+        
+      msgList.innerHTML = messages;
 
-  const sendMessage = (message) => socket.emit('sendMessage', message);
+      
+      const deleteBtns = document.querySelectorAll('.delete-btn');
+
+      deleteBtns.forEach((deleteBtn) => {
+        deleteBtn.addEventListener('click', () => {
+          const blockNum = deleteBtn.getAttribute('block_num');
+         
+          //socket.emit('deleteMessage', parseInt(blockNum));
+          
+          deleteMessage(parseInt(blockNum)).then(() => {
+          //deleteBtn.parentNode.parentNode.remove();  
+    // Once the deleteMessage operation is completed, remove the corresponding message from the DOM
+    const messageToRemove = msgList.querySelector(`[block_num="${blockNum}"]`);
+    if (messageToRemove) {
+      messageToRemove.parentElement.parentElement.remove(); // Assuming the <li> element is the parent's parent
+      messages = msgList.innerHTML;
+    }
+});
+        });
+});
+
+  };
+  
+  const deleteMessage = async (id) => { 
+   // try {
+    socket.emit('deleteMessage', parseInt(id));
+    
+  //  }
+  //  catch { 
+  //    console.log("Error");
+  //  }
+  }
+    const sendMessage = (message) => socket.emit('sendMessage', message);
 
   socket.on('recMessage', (message) => {
     messages.push(message);
     renderMessages(messages);
   });
+    
+  //const deleteMessage = (message) => socket.emit('deleteMessage', 1);
+    
 };
 
 app();
