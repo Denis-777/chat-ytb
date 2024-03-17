@@ -10,10 +10,25 @@ export class AppGateway
   constructor(private appservice: AppService) {} 
   @WebSocketServer() server: Server;
   @SubscribeMessage('sendMessage')
-  async handleSendMessage( client: Socket, payload: Prisma.ChatCreateInput,): Promise<void> {
-    this.appservice.createMessage(payload);
-    this.server.emit('recMessage', payload);
+  async handleSendMessage(client: Socket, payload: Prisma.ChatCreateInput,): Promise<void> {
+     try {
+      const createdMessage = await this.appservice.createMessage(payload);
+
+      const messageId = createdMessage.id;
+
+       this.server.emit('recMessage', { ...payload, id: messageId });
+       
+    } catch (error) {
+      
+    }
   }
+  @SubscribeMessage('deleteMessage')
+  async handleDeleteMessage(client: Socket, id: number): Promise<void> {
+   
+    await this.appservice.deleteMessage(id);
+    
+  }
+
   afterInit(server: any) {
     console.log(server);
   }
