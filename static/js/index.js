@@ -104,6 +104,7 @@ const app = () => {
     const sendMessage = (message) => socket.emit('sendMessage', message);
 
   socket.on('recMessage', (message) => {
+    getMessages();
     messages.push(message);
     renderMessages(messages);
   });
